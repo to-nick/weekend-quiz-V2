@@ -17,16 +17,16 @@ ________________________________________________________________________________
 INSTALLATION
 
 1. Clone the repository:
-    git clone https://github.com/to-nick/Good-Weekend-Quiz.git
+    git clone https://github.com/to-nick/weekend-quiz-V2.git
 
 2. Navigate to the project directory:
-    cd The-Good-Weekend-Quiz
+    cd Weekend-Quiz
 
 3. Install the dependancies from both directories:
     cd gwq-frontend
     npm install
     cd ..
-    cd gwq-backend
+    cd weekend-quiz-backend
     npm install
 
 4. Create a database:
@@ -64,12 +64,14 @@ API DOCUMENTATION
 - POST /users/register       // To register a new user
 - POST /users/login          // For user login
 
-## PROFILE
-- POST /profile/create-league   // For creating a new league
-- POST /profile/join-league     // For joining an existing league
-- GET /profile/display-leagues  // For fetching the leagues the user is part of
-- DELETE /profile/leave-league  // For removing yourself from a league
+## LEAGUES
+- POST /leagues/create-league           // For creating a new league
+- POST /leagues/join-league             // For joining an existing league
+- GET /leagues/display-leagues/:userId  // For fetching the leagues the user is part of
+- DELETE /leagues/leave-league  // For removing yourself from a league
 
-## DATA
-- GET /data/scores              // For fetching scores for the leaderboard, including weekly wins, total score and highscore
-- POST /data/submit-score       // For submitting a weekly score
+## SCORES
+- GET /scores/display-scores/:leagueId   // For fetching scores for the leaderboard, including weekly wins, total score and highscore
+
+## SUBMISSION
+- POST /submission/submit-score       // For submitting a weekly score
