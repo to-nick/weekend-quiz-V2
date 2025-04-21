@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Post, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Body, Post, Head } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { RegisterDto } from './dto/create-user/create-user.decorator';
 import { LoginDto } from './dto/login/login.decorator';
@@ -8,11 +8,9 @@ import { UserResponse } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('ping')
+  @Head('ping')
   async ping() {
-    return {
-      message: 'Ping received',
-    };
+    return;
   }
 
   @Post('register')

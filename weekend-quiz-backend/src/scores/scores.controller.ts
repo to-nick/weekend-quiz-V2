@@ -12,4 +12,9 @@ export class ScoresController {
   displayScores(@Param() viewScoresDto: ViewScoresDto) {
     return this.scoresService.viewScores(viewScoresDto);
   }
+
+  @Get('get-ping')
+  getPing(){
+    return "ping-received"
+  }
 }
