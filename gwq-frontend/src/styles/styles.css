@@ -945,7 +945,7 @@
 }
 
 .highscore-container h3{
-    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-size: clamp(1rem, 3vw, 2rem);
 }
 
 .highscore-container .highscore-week{
@@ -960,7 +960,7 @@
 
 @media(max-width: 990px){
     .highscore-container{
-        max-height: 12rem;
+        padding: 0;
     }
 }
 
@@ -975,6 +975,7 @@
 
     .highscore-container{
         top: 1rem;
+        padding: 1rem;
     }
 
     .table-container{

@@ -8,7 +8,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class ScoresController {
   constructor(private readonly scoresService: ScoresService) {}
 
-  @Get('display-scores/:leagueId')
+  @Get('display-scores/:leagueId/:currentWeek')
   displayScores(@Param() viewScoresDto: ViewScoresDto) {
     return this.scoresService.viewScores(viewScoresDto);
   }

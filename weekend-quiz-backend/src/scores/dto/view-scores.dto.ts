@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { Type } from "class-transformer";
 
 export class ViewScoresDto {
@@ -6,4 +6,8 @@ export class ViewScoresDto {
     @Type(() => Number)
     @IsNumber()
     leagueId: number;
+
+    @IsNotEmpty()
+    @IsString()
+    currentWeek: string;
 }

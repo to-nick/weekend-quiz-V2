@@ -12,7 +12,7 @@ export class ScoresService {
 
   //GET route for retreiving weekly and total user scores on the leaderboard page
   async viewScores(viewScoresDto: ViewScoresDto) {
-    const {leagueId} = viewScoresDto;
+    const {leagueId, currentWeek} = viewScoresDto;
 
 
     try{
@@ -52,8 +52,14 @@ export class ScoresService {
         .whereIn('user_id', userIds)
         .groupBy('user_id', 'player_name')
         .orderBy('total_score', 'desc') as {player_name: string, user_id: number, total_score: number}[];
+
+      const currentWeekScore = await this.knex('submission')
+        .select('user_id', 'score')
+        .whereIn("user_id", userIds)
+        .andWhere("week", currentWeek) as { user_id: number, score: number}[];
       
-      
+      console.log("CurrentWeekScore:", currentWeekScore)
+
       //Combining the total scores and weekly winner tally's into one object
       const combinedScores: {player_name: string, user_id: number, total_score: number, weeklyWins: number}[] = totalScores.map((score) => {
         const weeklyWinsEntry = weeklyWinsTally.find((entry) => entry.user_id === score.user_id);
@@ -62,6 +68,18 @@ export class ScoresService {
           weeklyWins: weeklyWinsEntry ? weeklyWinsEntry.weekly_wins : 0,
         };
       });
+
+      console.log('Combined Scores:', combinedScores);
+      
+      const scoresToReturn: {player_name: string, user_id: number, total_score: number, weeklyWins: number, currentWeekScore: number|string}[] = combinedScores.map((score) => {
+        const scoreEntry = currentWeekScore.find(entry => entry.user_id === score.user_id)
+        return {
+          ...score,
+          currentWeekScore: scoreEntry ? scoreEntry.score : "-"
+        }
+      });
+
+      console.log("Scores To Return:", scoresToReturn)
       
       //Query to find the highest single week score of the year, by a user
       const highScore = await this.knex('submission')
@@ -73,7 +91,7 @@ export class ScoresService {
         
 
       return {
-          combinedScores,
+          scoresToReturn,
           highScore,
       };
     } catch (error) {

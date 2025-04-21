@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext, useCallback} from 'react';
 import { AuthContext } from '../components/AuthContext';
 import Spinner from '../components/LoadingSpinner';
+import { findCurrentWeek } from '../Utils/dateFinder';
 
 //Leaderboard page 
 function Leaderboard (){
@@ -11,6 +12,7 @@ function Leaderboard (){
     const [selectedFormat, setSelectedFormat] = useState('Total Score');
     const [highestScore, setHighestScore] = useState({});
     const [loading, setLoading] = useState(false);
+    const [currentWeek, setCurrentWeek] = useState('');
 
     const { userDetails, handleExpiredJWT } = useContext(AuthContext);
     const token = sessionStorage.getItem('token')
@@ -42,9 +44,9 @@ function Leaderboard (){
     }, [userDetails.id, handleExpiredJWT, token])
 
     useEffect(() => {
+        setCurrentWeek(findCurrentWeek());
         fetchLeagues()
     }, [fetchLeagues, userDetails.id])
-
 
     //Handling changes in dropdown selection
     const handleLeagueChange = (event) => {
@@ -58,7 +60,7 @@ function Leaderboard (){
     const fetchLeagueData = useCallback(async () => {
         setLoading(true);
         try{
-            const leagueDataQuery = await fetch(`${backendHost}/scores/display-scores/${selectedLeague}`, {
+            const leagueDataQuery = await fetch(`${backendHost}/scores/display-scores/${selectedLeague}/${currentWeek}`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -72,7 +74,9 @@ function Leaderboard (){
             
             const data = await leagueDataQuery.json();
 
-            const scores = data.combinedScores;
+            console.log("Scores:", data)
+
+            const scores = data.scoresToReturn;
 
             console.log("Scores:", scores);
             //Setting the high score variable to something other than null to avoid errors if the user is not part of a league yet
@@ -135,6 +139,7 @@ function Leaderboard (){
                                         <th>Rank</th>
                                         <th>Name</th>
                                         <th>Score</th>
+                                        <th>This Weeks Score</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -143,6 +148,7 @@ function Leaderboard (){
                                                     <td>{index + 1}</td>
                                                     <td>{score.player_name}</td>
                                                     <td>{selectedFormat === 'Total Score' ? score.total_score : score.weeklyWins}</td>
+                                                    <td>{score.currentWeekScore}</td>
                                             </tr>
                                             })}
                                     </tbody>
