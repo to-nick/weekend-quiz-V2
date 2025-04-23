@@ -54,5 +54,44 @@ export class SubmissionService {
             throw new InternalServerErrorException('Failed to submit score');
         }
     }
+
+    async updateScore(submitScoreDto: SubmitScoreDto): Promise<{message: string}>{
+        const {week, userId, playerName, score, players, year} = submitScoreDto;
+        console.log('DATA TO INSERT:', submitScoreDto)
+
+        try{
+            //Building the submission object to match the database requirements
+            const dataToInsert: {user_id: number, week: string, year: number, score: number, number_of_players: number, player_name: string} = {
+                user_id: userId,
+                week: week,
+                year: year,
+                score: score,
+                number_of_players: players,
+                player_name: playerName,
+            }
+
+            
+            
+            //Inserting the score into the database
+            const submit: number = await this.knex('submission')
+            .where('user_id', dataToInsert.user_id)
+            .andWhere('week', dataToInsert.week)
+            .update({score: dataToInsert.score,
+                    number_of_players: dataToInsert.number_of_players,
+                })
+            
+            console.log('Rows updated:', submit)
+            
+            return {
+                message: 'Score updated successfully',
+            }
+        } catch (error) {
+            console.error('Error:',error);
+            if(error instanceof BadRequestException){
+                throw error;
+            }
+            throw new InternalServerErrorException('Failed to update score');
+        }
+    }
 }
 

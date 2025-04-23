@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../components/AuthContext';
 import Spinner from '../components/LoadingSpinner';
-import { parseDate, findCurrentWeek, weeks } from '../Utils/dateFinder';
+import { findCurrentWeek } from '../Utils/dateFinder';
 
 
 function Submit(){
@@ -22,9 +22,11 @@ function Submit(){
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [responseMessage, setResponseMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [updateScore, setUpdateScore] = useState(false);
 
     const { userDetails, handleExpiredJWT } = useContext(AuthContext);
     const token = sessionStorage.getItem("token");
+    const backendHost = process.env.REACT_APP_BACKEND_HOST;
 
     //Setting available user details upon load
     useEffect(() => {
@@ -38,9 +40,6 @@ function Submit(){
             })
         }
     },[userDetails]);
-
-    console.log("USER DETAILS", userDetails);
-    console.log('Submission Details:', submissionDetails)
    
 
     useEffect(() => {
@@ -62,7 +61,8 @@ function Submit(){
     //Submitting the score to the backend
     const submitScore = async (event) => {
         event.preventDefault();
-        const backendHost = process.env.REACT_APP_BACKEND_HOST;
+
+        console.log('SUBMISSION DETAILS:', submissionDetails)
         
         try{
             const response = await fetch(`${backendHost}/submission/submit-score`, {
@@ -78,6 +78,12 @@ function Submit(){
             const data = await response.json()
 
             if(!response.ok){
+
+                if(data.message === "Score already submitted for this week"){
+                    setUpdateScore(true)
+                    return;
+                }
+
                 setSubmitError(true)
                 setErrorResponse(data.message)
                 throw new Error(data.message)
@@ -87,14 +93,40 @@ function Submit(){
                 setSubmitSuccess(true);
 
             }
-            console.log(data);
         } catch(error){
             console.error(error.message);
             handleExpiredJWT(error);
-            
-            
         }
     };
+
+    const handleUpdateScore = async (event) =>{
+        event.preventDefault();
+        try{
+            const updateScore = await fetch(`${backendHost}/submission/update-score`, {
+                method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body:  JSON.stringify(submissionDetails)
+                })
+            
+            const data = await updateScore.json()
+
+            if(!updateScore.ok){
+                setErrorResponse(data.message)
+                setUpdateScore(false);
+                return;
+            }
+            setErrorResponse(false)
+            setSubmitSuccess(true)
+            setUpdateScore(false)
+            setResponseMessage(data.message)
+        } catch(error){
+            console.error(error.message)
+            handleExpiredJWT(error);
+        }
+    }
     
     return(
         <div className='page-container'>
@@ -103,6 +135,14 @@ function Submit(){
                     <h1 className="page-title">SUBMIT SCORE</h1>
                 </div>
                 <form className='submit-form' onSubmit={submitScore}>
+                    {updateScore ? 
+                        <div className='update-score-warning'>
+                            <p>Score already submitted for this week. Do you want to update your score?</p>
+                            <div className='update-score-button-container'>
+                                <button type="button" onClick={handleUpdateScore}>Yes</button>
+                                <button type="button" onClick={() => setUpdateScore(false)}>No</button>
+                            </div>
+                        </div> : null}
                     <p className='submission-week'>Submission for quiz week:<br /> <strong>{findCurrentWeek()}</strong></p>
                     <div className='submit-input-container'>
                         <label className="submit-form-label" htmlFor="score">Score:</label>

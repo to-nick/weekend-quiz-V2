@@ -47,7 +47,9 @@ TECH STACK
     -React (For dynamic UI components and visualisations)
 
 ## Backend
+    -Typescript
     -Node.js
+    -Nest.js
     -Express.js
     -Knex (For connecting the server to the database)
 
